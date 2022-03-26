@@ -9,7 +9,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 members = {}
 
-from rollcall import helpers
+from rollcall import routes, helpers
 
 helpers.setupDirs()
 helpers.getMembers()
