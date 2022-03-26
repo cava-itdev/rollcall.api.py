@@ -14,9 +14,8 @@ def detectFace(base64photo):
         Face GUID
     '''
     #Convert base64 to grayscale image
-    npArr = np.frombuffer(b64decode(base64photo), dtype=np.uint8)
-    print(npArr)
     try:
+        npArr = np.frombuffer(b64decode(base64photo), dtype=np.uint8)
         img = cv2.imdecode(npArr, cv2.IMREAD_UNCHANGED)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         logging.info('Converted photo to grayscale image')
