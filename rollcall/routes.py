@@ -16,7 +16,7 @@ def identify():
     if photo == None:
         return jsonify(message='No photo'), HTTPStatus.BAD_REQUEST
 
-    photoId, member = api.identifyMember(photo)
+    member, photoId = api.identifyMember(photo)
     if photoId == None:
         return jsonify(message='Bad photo'), HTTPStatus.BAD_REQUEST
 

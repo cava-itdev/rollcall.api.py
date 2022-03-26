@@ -23,10 +23,8 @@ def detectFace(base64photo):
         logging.error('Failed to convert photo')
         return None
     #Detect face(s) in image
-    #TODO test using different/multi classifiers
-    faceCascade = cv2.CascadeClassifier(os.path.join(app.config['OPENCV'], 'haarcascade_frontalface_default.xml'))
-    #TODO optimize parametes
     try:
+        faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(20, 20))
         logging.info(f'{len(faces)} face(s) detected')
         if len(faces) == 0: return None
@@ -35,7 +33,7 @@ def detectFace(base64photo):
         return None
 
     #Save face image with GUID
-    face = faces[0] #if len(faces) == 1 else getLargestFace(faces)
+    face = faces[0] if len(faces) == 1 else getLargestFace(faces)
     try:
         ok, jpg = cv2.imencode('*.jpg', gray)
     except:

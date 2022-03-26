@@ -29,8 +29,8 @@ def identifyMember(base64photo):
         return None, faceGuid
     global members
     member = members.get(memberId)
-    logging.info(f'Member recognised: {member.Id}, {member.name} {member.surname}')
-    return members.get(memberId), faceGuid
+    logging.info(f'Member recognised: {member}')
+    return member, faceGuid
 
 
 def registerMember(memberId, photoGuid):
