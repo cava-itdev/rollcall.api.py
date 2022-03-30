@@ -1,49 +1,57 @@
 from rollcall import app, members
 import rollcall.faces as faces
-from uuid import uuid1
 from os import path, rename, makedirs
+from genericpath import exists
+from uuid import uuid1
 from base64 import b64decode
-import numpy as np
-import cv2
 import logging
 
 
-def test():
-    global members
-    return members['052450']
-
-
-def identifyMember(base64photo):
+def identify(base64photo):
     '''Identify the member from a photo
     Returns:
         member object if identified, else None
-        GUID of the photo, None if invalid image
+        Photo ID, None if invalid image
     '''
-    faceGuid = faces.detectFace(base64photo)
-    if faceGuid == None: 
+    photoId = faces.detect(base64photo)
+    if photoId == None: 
         logging.error('No face in photo')
         return None, None
-    memberId = faces.recogniseMember(faceGuid)
+    
+    memberId = faces.recognise(photoId)
     if memberId == None: 
-        logging.info('Member not recognised')
-        return None, faceGuid
+        logging.info('Member not identified')
+        return None, photoId
+    
     global members
     member = members.get(memberId)
-    logging.info(f'Member recognised: {member}')
-    return member, faceGuid
+    logging.info(f'Member identified: {member}')
+    return None, photoId
 
 
-def registerMember(memberId, photoGuid):
+def register(memberId, photoId):
     '''Record the member's presence at the meeting
     Returns:
         member object if identified by memberId, else None
+        photoId used to register the member
     '''
-    #Move the new face to the member's directory
-    memberId = f'{int(memberId):06d}'
+    #Sanity checks
+    if not photoId: return None, None
     srcDir = path.join(app.config['DATA'], 'faces')
+    if not exists(path.join(srcDir, f'{photoId}.jpg')): return None, None
+
+    #Move the new photo to the member's directory
+    memberId = f'{int(memberId):06d}'
     dstDir = path.join(srcDir, memberId)
     makedirs(dstDir, exist_ok=True)
-    rename(path.join(srcDir, photoGuid), path.join(dstDir, photoGuid))
+    rename(path.join(srcDir, photoId), path.join(dstDir, photoId))
 
     global members
-    return members[memberId] if memberId in members else None 
+    member = members.get(memberId)
+    if member == None: return None, photoId
+
+    record(member)
+    return member, photoId
+
+def record(member):
+    pass

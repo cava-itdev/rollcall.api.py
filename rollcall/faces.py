@@ -8,15 +8,16 @@ from base64 import b64decode
 from rollcall import app
 
 
-def detectFace(base64photo):
+def detect(base64photo):
     '''Detects a face in an image
     Returns:
-        Face GUID
+        Photo ID
     '''
     #Convert base64 to grayscale image
     try:
-        npArr = np.frombuffer(b64decode(base64photo), dtype=np.uint8)
-        img = cv2.imdecode(npArr, cv2.IMREAD_UNCHANGED)
+        img_raw = b64decode(base64photo)
+        img_npy = np.frombuffer(img_raw, dtype=np.uint8)
+        img = cv2.imdecode(img_npy, cv2.IMREAD_UNCHANGED) #??
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         logging.info('Converted photo to grayscale image')
     except:
@@ -32,29 +33,30 @@ def detectFace(base64photo):
         logging.error('Failed to detect face')
         return None
 
+    #???
     #Save face image with GUID
-    face = faces[0] if len(faces) == 1 else getLargestFace(faces)
+    # try:
+    #     ok, jpg = cv2.imencode('*.jpg', gray)
+    # except:
+    #     logging.error('Failed to encode jpg')
+    #     return None
+    photoId = str(uuid1())
+    path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
     try:
-        ok, jpg = cv2.imencode('*.jpg', gray)
-    except:
-        logging.error('Failed to encode jpg')
-        return None
-    faceGuid = str(uuid1())
-    path = os.path.join(app.config['DATA'], 'faces', f'{faceGuid}.jpg')
-    try:
+        face = getLargest(faces)
         cv2.imwrite(path, gray[face[1]:face[1]+face[3], face[0]:face[0]+face[2]])
-        return faceGuid
+        return photoId
     except:
         logging.error('Failed to write jpg')
         return None
 
 
-def recogniseMember(faceGuid):
+def recognise(faceGuid):
     #TODO: Implement
     return '052450'
     
 
-def getLargestFace(faces):
+def getLargest(faces):
     '''Helper function to select the face with the largest diagonal from a list of faces'''
     if len(faces) == 0: return None
     if len(faces) == 1: return faces[0]
