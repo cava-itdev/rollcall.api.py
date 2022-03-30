@@ -12,4 +12,5 @@ members = {}
 from rollcall import routes, helpers
 
 helpers.setupDirs()
+helpers.createRegister()
 helpers.getMembers()
