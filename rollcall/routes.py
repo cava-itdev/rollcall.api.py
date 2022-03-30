@@ -1,10 +1,9 @@
-# from crypt import methods
 from http import HTTPStatus
 from flask import request, jsonify
 from rollcall import app
 import rollcall.api as api
 
-@app.route('/', methods=['GET'])
+@app.route('/',    methods=['GET'])
 @app.route('/api', methods=['GET'])
 def welcome():
     return jsonify(message='Welcome to the Rollcall API'), HTTPStatus.OK
@@ -16,7 +15,7 @@ def identify():
     if photo == None:
         return jsonify(message='No photo'), HTTPStatus.BAD_REQUEST
 
-    member, photoId = api.identifyMember(photo)
+    member, photoId = api.identify(photo)
     if photoId == None:
         return jsonify(message='Bad photo'), HTTPStatus.BAD_REQUEST
 
@@ -27,11 +26,18 @@ def identify():
 @app.route('/api/register', methods=['POST'])
 def register():
     json = request.get_json(force=True)
-    photoGuid = json.get('photoGuid')
-    if photoGuid == None: return jsonify(message='Missing photoGuid'), HTTPStatus.BAD_REQUEST
-    memberId = json.get('memberId')
-    if memberId == None: return jsonify(message='Missing memberId'), HTTPStatus.BAD_REQUEST
+    photoId = json.get('photoId')
+    if photoId == None: return jsonify(message='Missing photoId'), HTTPStatus.BAD_REQUEST
+    member = json.get('memberId')
+    if member == None: return jsonify(message='Missing member ID'), HTTPStatus.BAD_REQUEST
 
-    member = api.registerMember(memberId, photoGuid)
-    status = HTTPStatus.NOT_FOUND if member == None else HTTPStatus.OK
-    return jsonify({ 'member': member }), status
+    try:
+        member, photoId, message = api.register(member, photoId)
+        if photoId == None:
+            status = HTTPStatus.BAD_REQUEST
+        else:
+            status = HTTPStatus.NOT_FOUND if member == None else HTTPStatus.CREATED
+    except Exception:
+        status = HTTPStatus.INTERNAL_SERVER_ERROR
+        message = 'Failed to register member'
+    return jsonify(message=message)
