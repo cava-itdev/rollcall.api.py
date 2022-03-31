@@ -13,14 +13,12 @@ def welcome():
 @app.route('/api/identify', methods=['POST'])
 def identify():
     photo = request.get_json(force=True).get('photo')
-    if photo == None:
-        return jsonify(message='No photo'), HTTPStatus.BAD_REQUEST
+    if not photo: return jsonify(message='No photo'), HTTPStatus.BAD_REQUEST
 
     member, photoId = api.identify(photo)
-    if photoId == None:
-        return jsonify(message='Bad photo'), HTTPStatus.BAD_REQUEST
+    if not photoId: return jsonify(message='Bad photo'), HTTPStatus.BAD_REQUEST
 
-    status = HTTPStatus.NOT_FOUND if member == None else HTTPStatus.OK
+    status = HTTPStatus.OK if member else HTTPStatus.NOT_FOUND
     return jsonify(photoId=photoId, member=member), status
 
 

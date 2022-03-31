@@ -1,4 +1,4 @@
-from rollcall import app, members
+from rollcall import app
 import rollcall.faces as faces
 import rollcall.helper as helper
 from os import path, rename, makedirs
@@ -13,19 +13,17 @@ def identify(base64photo):
         Photo ID, None if invalid image
     '''
     photoId = faces.detect(base64photo)
-    if photoId == None: 
+    if not photoId: 
         logging.error('No face in photo')
         return None, None
     
-    memberId = faces.recognise(photoId)
-    if memberId == None: 
+    member = faces.recognise(photoId)
+    if not member: 
         logging.info('Member not identified')
         return None, photoId
     
-    global members
-    member = members.get(memberId)
     logging.info(f'Member identified: {member}')
-    return None, photoId
+    return member, photoId
 
 
 def register(member, photoId):
@@ -51,8 +49,9 @@ def register(member, photoId):
     rename(path.join(srcDir, photo), path.join(dstDir, photo))
 
     _record(id)
-    
+
     return member, photoId, 'Member registered successfully'
+
 
 def _record(memberId):
     today = dt.datetime.today()

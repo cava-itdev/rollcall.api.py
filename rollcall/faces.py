@@ -5,13 +5,13 @@ import logging
 from uuid import uuid1
 from math import sqrt
 from base64 import b64decode
-from rollcall import app
+from rollcall import app, members
 
 
 def detect(base64photo):
     '''Detects a face in an image
-    Returns:
-        Photo ID
+    Input: Base64 encoded image
+    Returns: unique photo ID
     '''
     #Convert base64 to grayscale image
     try:
@@ -23,6 +23,7 @@ def detect(base64photo):
     except:
         logging.error('Failed to convert photo')
         return None
+    
     #Detect face(s) in image
     try:
         faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -33,17 +34,17 @@ def detect(base64photo):
         logging.error('Failed to detect face')
         return None
 
-    #???
+    #??? TODO
     #Save face image with GUID
     # try:
     #     ok, jpg = cv2.imencode('*.jpg', gray)
     # except:
     #     logging.error('Failed to encode jpg')
     #     return None
-    photoId = str(uuid1())
-    path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
     try:
-        face = getLargest(faces)
+        photoId = str(uuid1())
+        path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
+        face = _getLargest(faces)
         cv2.imwrite(path, gray[face[1]:face[1]+face[3], face[0]:face[0]+face[2]])
         return photoId
     except:
@@ -51,13 +52,21 @@ def detect(base64photo):
         return None
 
 
-def recognise(faceGuid):
-    #TODO: Implement
-    return '052450'
+def recognise(photoId):
+    '''Identify the member from a photo
+    Input: unique photo ID
+    Output: the member identified from the photo
+    '''
+    # TODO
+    global members
+    return members['052450']
     
 
-def getLargest(faces):
-    '''Helper function to select the face with the largest diagonal from a list of faces'''
+def _getLargest(faces):
+    '''Helper function to select the face with the largest diagonal from a list of faces
+    Input: collection of faces
+    Output: the face with the largest diameter
+    '''
     if len(faces) == 0: return None
     if len(faces) == 1: return faces[0]
 
