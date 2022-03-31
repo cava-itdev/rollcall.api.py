@@ -27,12 +27,14 @@ def getAllMembers():
                 id = row['Mem No'].replace('\t', '')
                 id = f'{int(id):06d}'
                 altId = row['SA Identity No'].replace('\t', '')
+                language = row['Language'].replace('\t', '')
+                language = language[0:1] if len(language) > 1 else 'A'
                 member = {
                     'id': id,
                     'altId': altId,
                     'name': row['Preferred Name'].replace('\t', ''),
                     'surname': row['Surname'].replace('\t', ''),
-                    'language': row['Language'].replace('\t', '')[0:1]
+                    'language': language
                 }
                 if not id in members.keys(): members[id] = member
                 if not altId in altIds.keys(): altIds[altId] = id
