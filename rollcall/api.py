@@ -1,9 +1,8 @@
 from rollcall import app, members
 import rollcall.faces as faces
+import rollcall.helper as helper
 from os import path, rename, makedirs
-from genericpath import exists
-from uuid import uuid1
-from base64 import b64decode
+import datetime as dt
 import logging
 
 
@@ -29,29 +28,34 @@ def identify(base64photo):
     return None, photoId
 
 
-def register(memberId, photoId):
+def register(member, photoId):
     '''Record the member's presence at the meeting
     Returns:
         member object if identified by memberId, else None
-        photoId used to register the member
+        photoId used to register the member, None if invalid
+        an appropriate message
     '''
     #Sanity checks
-    if not photoId: return None, None
+    if not photoId: return None, None, 'photoId not provided'
+    photo = f'{photoId}.jpg'
     srcDir = path.join(app.config['DATA'], 'faces')
-    if not exists(path.join(srcDir, f'{photoId}.jpg')): return None, None
+    if not path.exists(path.join(srcDir, photo)): return None, None, 'Invalid photoId'
+
+    member = helper.findMember(member)
+    if not member: return None, photoId, "Member not found"
+    id = member.get('id')
 
     #Move the new photo to the member's directory
-    memberId = f'{int(memberId):06d}'
-    dstDir = path.join(srcDir, memberId)
+    dstDir = path.join(srcDir, f'{int(id):06d}')
     makedirs(dstDir, exist_ok=True)
-    rename(path.join(srcDir, photoId), path.join(dstDir, photoId))
+    rename(path.join(srcDir, photo), path.join(dstDir, photo))
 
-    global members
-    member = members.get(memberId)
-    if member == None: return None, photoId
+    _record(id)
+    
+    return member, photoId, 'Member registered successfully'
 
-    record(member)
-    return member, photoId
-
-def record(member):
-    pass
+def _record(memberId):
+    today = dt.datetime.today()
+    register = path.join(app.config['DATA'], f'{today.year}-{today.month:02}-{today.day:02}.txt') 
+    with open(register, 'a') as f: 
+        f.write(f'{memberId}\n')

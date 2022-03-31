@@ -7,10 +7,10 @@ CORS(app)
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
-members = {}
+members = {} # id:member
+altIds = {}  # altId:id
 
-from rollcall import routes, helpers
+from rollcall import helper, routes
 
-helpers.setupDirs()
-helpers.createRegister()
-helpers.getMembers()
+app.config['DATA'] = helper.setupDirs()
+helper.getAllMembers()

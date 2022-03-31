@@ -1,0 +1,49 @@
+from rollcall import app, members, altIds
+from os import path, getcwd, makedirs
+from glob import glob
+from csv import DictReader
+import datetime as dt
+
+
+def setupDirs():
+    dataDir = path.join(getcwd(), 'data')
+    app.config['DATA'] = dataDir
+    makedirs(dataDir, exist_ok=True)
+    makedirs(path.join(dataDir, 'faces'), exist_ok=True)
+    return dataDir
+
+
+def getAllMembers():
+    '''Reads all members into a global dictionary'''
+    global members, altMembers
+    for file in glob(path.join(app.config['DATA'], '*.csv')):
+        with open(path.join(app.config['DATA'], file)) as f:
+            reader = DictReader(f, quotechar='"')
+            for row in reader:
+                id = row['Mem No'].replace('\t', '')
+                id = f'{int(id):06d}'
+                altId = row['SA Identity No'].replace('\t', '')
+                member = {
+                    'id': id,
+                    'altId': altId,
+                    'name': row['Preferred Name'].replace('\t', ''),
+                    'surname': row['Surname'].replace('\t', ''),
+                    'language': row['Language'].replace('\t', '')[0:1],
+                    'email': row['E-mail address'].replace('\t', ''),
+                    'phone': row['Mobile No'].replace('\t', '')
+                }
+                if not id in members.keys(): members[id] = member
+                if not altId in altIds.keys(): altIds[altId] = id
+
+
+def findMember(member):
+    '''Finds a member by id or altId
+    Input: a dictionary containing the id or altId
+    Output: the member from the global list, if found
+    '''
+    global members, altMembers
+    altId = member.get('altId') # If the altId is provided...
+    id = altIds.get(id) if altId else member.get('id') # ...lookup the id or get directly
+    if not id: return None
+    id = f'{int(id):06}'
+    return members.get(id)
