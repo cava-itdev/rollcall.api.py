@@ -14,8 +14,12 @@ def setupDirs():
 
 
 def getAllMembers():
-    '''Reads all members into a global dictionary'''
-    global members, altMembers
+    '''Reads all members into a global dictionary
+    Output:
+        - dictionary of all members, keyed by member ID
+        - dictionary of member IDs, keyed by altId
+    '''
+    global members, altIds
     for file in glob(path.join(app.config['DATA'], '*.csv')):
         with open(path.join(app.config['DATA'], file)) as f:
             reader = DictReader(f, quotechar='"')
@@ -28,9 +32,7 @@ def getAllMembers():
                     'altId': altId,
                     'name': row['Preferred Name'].replace('\t', ''),
                     'surname': row['Surname'].replace('\t', ''),
-                    'language': row['Language'].replace('\t', '')[0:1],
-                    'email': row['E-mail address'].replace('\t', ''),
-                    'phone': row['Mobile No'].replace('\t', '')
+                    'language': row['Language'].replace('\t', '')[0:1]
                 }
                 if not id in members.keys(): members[id] = member
                 if not altId in altIds.keys(): altIds[altId] = id
@@ -41,9 +43,10 @@ def findMember(member):
     Input: a dictionary containing the id or altId
     Output: the member from the global list, if found
     '''
-    global members, altMembers
+    global members, altIds
     altId = member.get('altId') # If the altId is provided...
-    id = altIds.get(id) if altId else member.get('id') # ...lookup the id or get directly
+    id = altIds.get(altId) if altId else member.get('id') # ...lookup the id or get directly
     if not id: return None
     id = f'{int(id):06}'
+    m = members.get(id)
     return members.get(id)
