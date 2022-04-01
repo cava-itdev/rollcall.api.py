@@ -1,7 +1,7 @@
 from rollcall import app
 import rollcall.faces as faces
 import rollcall.helper as helper
-from os import path, rename, makedirs
+import os
 import datetime as dt
 import logging
 
@@ -36,17 +36,17 @@ def register(member, photoId):
     #Sanity checks
     if not photoId: return None, None, 'photoId not provided'
     photo = f'{photoId}.jpg'
-    srcDir = path.join(app.config['DATA'], 'faces')
-    if not path.exists(path.join(srcDir, photo)): return None, None, 'Invalid photoId'
+    srcDir = os.path.join(app.config['DATA'], 'faces')
+    if not os.path.exists(os.path.join(srcDir, photo)): return None, None, 'Invalid photoId'
 
     member = helper.findMember(member)
     if not member: return None, photoId, "Member not found"
     id = member.get('id')
 
     #Move the new photo to the member's directory
-    dstDir = path.join(srcDir, f'{int(id):06d}')
-    makedirs(dstDir, exist_ok=True)
-    rename(path.join(srcDir, photo), path.join(dstDir, photo))
+    dstDir = os.path.join(srcDir, f'{int(id):06d}')
+    os.makedirs(dstDir, exist_ok=True)
+    os.rename(os.path.join(srcDir, photo), os.path.join(dstDir, photo))
 
     _record(id)
 
@@ -55,6 +55,6 @@ def register(member, photoId):
 
 def _record(memberId):
     today = dt.datetime.today()
-    register = path.join(app.config['DATA'], f'{today.year}-{today.month:02}-{today.day:02}.txt') 
+    register = os.path.join(app.config['DATA'], f'{today.year}-{today.month:02}-{today.day:02}.txt') 
     with open(register, 'a') as f: 
         f.write(f'{memberId}\n')

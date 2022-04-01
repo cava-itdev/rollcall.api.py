@@ -1,15 +1,14 @@
 from rollcall import app, members, altIds
-from os import path, getcwd, makedirs
-from glob import glob
-from csv import DictReader
-import datetime as dt
+import os
+import glob
+import csv
 
 
 def setupDirs():
-    dataDir = path.join(getcwd(), 'data')
+    dataDir = os.path.join(os.getcwd(), 'data')
     app.config['DATA'] = dataDir
-    makedirs(dataDir, exist_ok=True)
-    makedirs(path.join(dataDir, 'faces'), exist_ok=True)
+    os.makedirs(dataDir, exist_ok=True)
+    os.makedirs(os.path.join(dataDir, 'faces'), exist_ok=True)
     return dataDir
 
 
@@ -20,9 +19,9 @@ def getAllMembers():
         - dictionary of member IDs, keyed by altId
     '''
     global members, altIds
-    for file in glob(path.join(app.config['DATA'], '*.csv')):
-        with open(path.join(app.config['DATA'], file)) as f:
-            reader = DictReader(f, quotechar='"')
+    for file in glob.glob(os.path.join(app.config['DATA'], '*.csv')):
+        with open(os.path.join(app.config['DATA'], file)) as f:
+            reader = csv.DictReader(f, quotechar='"')
             for row in reader:
                 id = row['Mem No'].replace('\t', '')
                 id = f'{int(id):06d}'

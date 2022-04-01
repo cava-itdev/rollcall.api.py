@@ -1,11 +1,11 @@
+from rollcall import app, members
 import os
 import cv2
 import numpy as np
 import logging
-from uuid import uuid1
-from math import sqrt
-from base64 import b64decode
-from rollcall import app, members
+import uuid
+import math
+import base64
 
 
 def detect(base64photo):
@@ -15,7 +15,7 @@ def detect(base64photo):
     '''
     #Convert base64 to grayscale image
     try:
-        img_raw = b64decode(base64photo)
+        img_raw = base64.b64decode(base64photo)
         img_npy = np.frombuffer(img_raw, dtype=np.uint8)
         img = cv2.imdecode(img_npy, cv2.IMREAD_UNCHANGED) #??
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,7 +42,7 @@ def detect(base64photo):
     #     logging.error('Failed to encode jpg')
     #     return None
     try:
-        photoId = str(uuid1())
+        photoId = str(uuid.uuid1())
         path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
         face = _getLargest(faces)
         cv2.imwrite(path, gray[face[1]:face[1]+face[3], face[0]:face[0]+face[2]])
@@ -70,7 +70,7 @@ def _getLargest(faces):
     if len(faces) == 0: return None
     if len(faces) == 1: return faces[0]
 
-    sizeOf = lambda f: sqrt(f[2]**2 + f[3]**2)
+    sizeOf = lambda f: math.sqrt(f[2]**2 + f[3]**2)
     maxSize = 0
     bigFace = faces[0]
     for face in faces:

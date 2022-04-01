@@ -10,7 +10,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 members = {} # id:member
 altIds = {}  # altId:id
 
-from rollcall import helper, routes
+from rollcall import helper
 
 app.config['DATA'] = helper.setupDirs()
 helper.getAllMembers()
