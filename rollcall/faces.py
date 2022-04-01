@@ -52,9 +52,15 @@ def recognise(photoId):
     Input: unique photo ID
     Output: the member identified from the photo
     '''
-    # TODO
+    path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
+    if not os.path.isfile(path): return None
+    img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    model = cv2.face.LBPHFaceRecognizer_create()
+    model.read(os.path.join(app.config['DATA'], 'training.yml'))
+    result = model.predict(img)
+    id = f'{int(result[0]):06}'
     global MEMBERS
-    return MEMBERS['052450']
+    return MEMBERS.get(id)
 
 
 def _getLargest(faces):
