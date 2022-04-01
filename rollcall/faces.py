@@ -1,4 +1,4 @@
-from rollcall import app, members
+from rollcall import app, MEMBERS, FACES, LABELS
 import os
 import cv2
 import numpy as np
@@ -6,6 +6,8 @@ import logging
 import uuid
 import math
 import base64
+import glob
+import shutil
 
 
 def detect(base64photo):
@@ -13,17 +15,17 @@ def detect(base64photo):
     Input: Base64 encoded image
     Returns: unique photo ID
     '''
-    #Convert base64 to grayscale image
+    # Convert base64 to grayscale image
     try:
         img_raw = base64.b64decode(base64photo)
         img_npy = np.frombuffer(img_raw, dtype=np.uint8)
-        img = cv2.imdecode(img_npy, cv2.IMREAD_UNCHANGED) #??
+        img = cv2.imdecode(img_npy, cv2.IMREAD_UNCHANGED)  # ??
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         logging.info('Converted photo to grayscale image')
     except:
         logging.error('Failed to convert photo')
         return None
-    
+
     #Detect face(s) in image
     try:
         faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -34,13 +36,6 @@ def detect(base64photo):
         logging.error('Failed to detect face')
         return None
 
-    #??? TODO
-    #Save face image with GUID
-    # try:
-    #     ok, jpg = cv2.imencode('*.jpg', gray)
-    # except:
-    #     logging.error('Failed to encode jpg')
-    #     return None
     try:
         photoId = str(uuid.uuid1())
         path = os.path.join(app.config['DATA'], 'faces', f'{photoId}.jpg')
@@ -58,9 +53,9 @@ def recognise(photoId):
     Output: the member identified from the photo
     '''
     # TODO
-    global members
-    return members['052450']
-    
+    global MEMBERS
+    return MEMBERS['052450']
+
 
 def _getLargest(faces):
     '''Helper function to select the face with the largest diagonal from a list of faces
@@ -77,3 +72,35 @@ def _getLargest(faces):
         size = sizeOf(face)
         if size > maxSize: maxSize, bigFace = size, face
     return bigFace
+
+
+def train():
+    faces = []
+    labels = []
+    facesDir = os.path.join(app.config['DATA'], 'faces')
+    for member in os.listdir(facesDir):
+        memberDir = os.path.join(facesDir, member)
+        if not os.path.isdir(memberDir): continue
+        _duplicateSinglePhoto(memberDir)
+        for photo in os.listdir(memberDir):
+            path = os.path.join(facesDir, member, photo)
+            if not os.path.isfile(path): continue
+            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            faces.append(img)
+            labels.append(int(member))
+    if not faces: return
+    
+    # Create the training data
+    global FACES, LABELS
+    FACES = np.array(faces, dtype=object)
+    LABELS = np.array(labels)
+    model = cv2.face.LBPHFaceRecognizer_create()
+    model.train(FACES, LABELS)
+    model.save(os.path.join(app.config['DATA'], 'training.yml'))
+
+def _duplicateSinglePhoto(path):
+    '''Duplicates an existing photo when only 1 in the directory
+       This is necessary since the recognizer needs at least 2
+    '''
+    photos = glob.glob(os.path.join(path, '*.jpg'))
+    if len(photos) == 1: shutil.copy(photos[0], os.path.join(path, 'duplicate.jpg'))

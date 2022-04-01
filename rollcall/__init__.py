@@ -7,10 +7,13 @@ CORS(app)
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
-members = {} # id:member
-altIds = {}  # altId:id
+MEMBERS = {} # id:member
+ALTIDS  = {} # altId:id
+FACES = [] # face encodings
+LABELS = [] # face labels
 
-from rollcall import helper
+from rollcall import helper, faces, routes
 
 app.config['DATA'] = helper.setupDirs()
 helper.getAllMembers()
+faces.train()

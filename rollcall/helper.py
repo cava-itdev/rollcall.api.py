@@ -1,4 +1,4 @@
-from rollcall import app, members, altIds
+from rollcall import app, MEMBERS, ALTIDS
 import os
 import glob
 import csv
@@ -18,7 +18,7 @@ def getAllMembers():
         - dictionary of all members, keyed by member ID
         - dictionary of member IDs, keyed by altId
     '''
-    global members, altIds
+    global MEMBERS, ALTIDS
     for file in glob.glob(os.path.join(app.config['DATA'], '*.csv')):
         with open(os.path.join(app.config['DATA'], file)) as f:
             reader = csv.DictReader(f, quotechar='"')
@@ -35,8 +35,8 @@ def getAllMembers():
                     'surname': row['Surname'].replace('\t', ''),
                     'language': language
                 }
-                if not id in members.keys(): members[id] = member
-                if not altId in altIds.keys(): altIds[altId] = id
+                if not id in MEMBERS.keys(): MEMBERS[id] = member
+                if not altId in ALTIDS.keys(): ALTIDS[altId] = id
 
 
 def findMember(member):
@@ -44,10 +44,10 @@ def findMember(member):
     Input: a dictionary containing the id or altId
     Output: the member from the global list, if found
     '''
-    global members, altIds
+    global MEMBERS, ALTIDS
     altId = member.get('altId') # If the altId is provided...
-    id = altIds.get(altId) if altId else member.get('id') # ...lookup the id or get directly
+    id = ALTIDS.get(altId) if altId else member.get('id') # ...lookup the id or get directly
     if not id: return None
     id = f'{int(id):06}'
-    m = members.get(id)
-    return members.get(id)
+    m = MEMBERS.get(id)
+    return MEMBERS.get(id)
