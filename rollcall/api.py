@@ -48,13 +48,14 @@ def register(member, photoId):
     os.makedirs(dstDir, exist_ok=True)
     os.rename(os.path.join(srcDir, photo), os.path.join(dstDir, photo))
 
-    _record(id)
+    _record(member)
 
     return member, photoId, 'Member registered successfully'
 
 
-def _record(memberId):
+def _record(member):
     today = dt.datetime.today()
     register = os.path.join(app.config['DATA'], f'{today.year}-{today.month:02}-{today.day:02}.txt') 
     with open(register, 'a') as f: 
-        f.write(f'{memberId}\n')
+        entry = f'{member.get("id")}\t{member.get("name")} {member.get("surname")}\n'
+        f.write(entry)

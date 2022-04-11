@@ -21,6 +21,7 @@ def detect(base64photo):
         img_npy = np.frombuffer(img_raw, dtype=np.uint8)
         img = cv2.imdecode(img_npy, cv2.IMREAD_UNCHANGED)  # ??
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        photoId = str(uuid.uuid1())
         logging.info('Converted photo to grayscale image')
     except:
         logging.error('Failed to convert photo')
