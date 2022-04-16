@@ -7,8 +7,8 @@
 The *Rollcall* backend is a web API with appropriate methods to identify and register a member from a photo.
 
 ## Technology used
-- Python with Flask framework (<https://flask.palletsprojects.com/en/2.1.x/>)
-- OpenCV realtime computer vision library (<https://opencv.org/>)
+- Python with [Flask](https://flask.palletsprojects.com/en/2.1.x/) framework
+- [OpenCV](https://opencv.org/) realtime computer vision library
 
 ## Approach taken
 OpenCV is developed in C++, with bindings for Python. The objective of the Python backend was to develop a prototype API to test the feasibility of an attendance system at club meetings.
