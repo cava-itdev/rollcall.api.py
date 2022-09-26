@@ -24,7 +24,7 @@ The *Member* struct describes a member
 
     - HTTP status:
         - 200 OK: member successfully identified; *photoId* and *member* not zero
-        - 404 NOTFOUND: failed to identify member; *photoId* not zero, *member* zero
+        - 204 NOCONTENT: failed to identify member; *photoId* not zero, *member* zero
         - 400 BADREQUEST: photo unusable or not provided in request; *photoId* zero, *member* zero 
 ### *register*
 *register* records the attendance of a member.
@@ -42,6 +42,6 @@ The *Member* struct describes a member
 
 - HTTP status:
     - 201 CREATED: member's attendance successfully recorded
+    - 204 NOCONTENT: member unknown
     - 400 BADREQUEST: *photoId* not provided or unknown 
-    - 404 NOTFOUND: member unknown
     - 500 INTERNALERROR: the system failed to record the attendance

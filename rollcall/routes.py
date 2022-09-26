@@ -20,7 +20,7 @@ def identify():
         member, photoId = api.identify(photo)
         if not photoId: return jsonify(message='Bad photo'), http.HTTPStatus.BAD_REQUEST
 
-        status = http.HTTPStatus.OK if member else http.HTTPStatus.NOT_FOUND
+        status = http.HTTPStatus.OK if member else http.HTTPStatus.NO_CONTENT
         return jsonify(photoId=photoId, member=member), status
     except Exception as e:
         logger.info(e)
@@ -40,7 +40,7 @@ def register():
     try:
         member, photoId, message = api.register(member, photoId)
         if photoId:
-            status = http.HTTPStatus.CREATED if member else http.HTTPStatus.NOT_FOUND
+            status = http.HTTPStatus.CREATED if member else http.HTTPStatus.NO_CONTENT
         else:
             status = http.HTTPStatus.BAD_REQUEST
     except Exception:
